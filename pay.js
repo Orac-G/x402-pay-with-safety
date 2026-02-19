@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * x402-pay — Make x402 micropayments with built-in Safety Layer screening
+ * x402-pay-with-safety — Make x402 micropayments with built-in Safety Layer screening
  *
  * Usage:
  *   node pay.js --url <url> [--body <json>] [--context <text>] [--no-safety-check] [--json]

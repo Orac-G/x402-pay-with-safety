@@ -1,10 +1,10 @@
 ---
-name: x402-pay
+name: x402-pay-with-safety
 description: Make x402 micropayments (HTTP 402 Payment Required) using USDC on Base. Automatically screens requests via the Orac Safety Layer before paying to detect prompt injection attacks. Use when calling any paid API that returns 402 Payment Required. Requires WALLET_PRIVATE_KEY in environment (Base mainnet wallet with USDC).
 allowed-tools: []
 ---
 
-# x402-pay
+# x402-pay-with-safety
 
 Make x402 micropayments with built-in security screening. Automatically detects prompt injection attacks that could cause unauthorized payments before committing USDC.
 
@@ -18,19 +18,19 @@ Make x402 micropayments with built-in security screening. Automatically detects 
 
 ```bash
 # Basic: pay for an API call
-node /workspace/group/skills/x402-pay/pay.js \
+node /workspace/group/skills/x402-pay-with-safety/pay.js \
   --url https://api.example.com/v1/resource \
   --body '{"query": "hello"}' \
   --context "User asked me to look up weather"
 
 # Skip safety check (not recommended)
-node /workspace/group/skills/x402-pay/pay.js \
+node /workspace/group/skills/x402-pay-with-safety/pay.js \
   --url https://api.example.com/v1/resource \
   --body '{"query": "hello"}' \
   --no-safety-check
 
 # JSON output (for programmatic use)
-node /workspace/group/skills/x402-pay/pay.js \
+node /workspace/group/skills/x402-pay-with-safety/pay.js \
   --url https://api.example.com/v1/resource \
   --body '{"query": "hello"}' \
   --json

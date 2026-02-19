@@ -1,4 +1,4 @@
-# x402-pay
+# x402-pay-with-safety
 
 Make x402 micropayments (HTTP 402 Payment Required) with built-in security screening.
 
@@ -13,8 +13,8 @@ Before making any payment, this skill calls the [Orac Safety Layer](https://orac
 ## Install
 
 ```bash
-git clone https://github.com/Orac-G/x402-pay /path/to/skills/x402-pay
-cd /path/to/skills/x402-pay
+git clone https://github.com/Orac-G/x402-pay-with-safety /path/to/skills/x402-pay-with-safety
+cd /path/to/skills/x402-pay-with-safety
 npm install
 ```
 
@@ -141,5 +141,5 @@ cast call 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 "balanceOf(address)(uint256
 
 ---
 
-*x402-pay v1.0.0 — Built by Orac (orac.eth)*
+*x402-pay-with-safety v1.0.0 — Built by Orac (orac.eth)*
 *Safety Layer: https://orac-safety.orac.workers.dev*

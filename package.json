@@ -1,5 +1,5 @@
 {
-  "name": "x402-pay",
+  "name": "x402-pay-with-safety",
   "version": "1.0.0",
   "description": "x402 micropayment skill with Safety Layer integration",
   "main": "pay.js",
