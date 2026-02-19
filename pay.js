@@ -124,17 +124,17 @@ async function screenWithSafetyLayer(context, signer, verbose) {
   }
 }
 
-// --- x402 signer using @noble/secp256k1 + viem ---
+// --- x402 signer using viem + @x402 ---
 
-async function createSigner(privateKeyHex) {
-  // Lazy-load heavy deps
-  const { createWalletClient, http, parseUnits, encodeFunctionData, keccak256, toBytes } = await import('viem');
-  const { privateKeyToAccount } = await import('viem/accounts');
-  const { base } = await import('viem/chains');
-  const { x402Client, x402HTTPClient } = await import('@x402/core/client');
-  const { ExactEvmScheme } = await import('@x402/evm');
+function createSigner(privateKeyHex) {
+  const { createWalletClient, http } = require('viem');
+  const { privateKeyToAccount } = require('viem/accounts');
+  const { base } = require('viem/chains');
+  const { x402Client, x402HTTPClient } = require('@x402/core/client');
+  const { ExactEvmScheme } = require('@x402/evm');
 
-  const account = privateKeyToAccount(privateKeyHex.startsWith('0x') ? privateKeyHex : `0x${privateKeyHex}`);
+  const key = privateKeyHex.startsWith('0x') ? privateKeyHex : `0x${privateKeyHex}`;
+  const account = privateKeyToAccount(key);
   const walletClient = createWalletClient({ account, chain: base, transport: http('https://mainnet.base.org') });
 
   const viemSigner = {
@@ -184,7 +184,7 @@ async function main() {
   }
 
   // Set up signer
-  const signer = await createSigner(privateKey);
+  const signer = createSigner(privateKey);
 
   if (verbose) {
     process.stderr.write(`Wallet: ${signer.address}\n`);
