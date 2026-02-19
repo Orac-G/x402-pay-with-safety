@@ -1,0 +1,12 @@
+{
+  "name": "x402-pay",
+  "version": "1.0.0",
+  "description": "x402 micropayment skill with Safety Layer integration",
+  "main": "pay.js",
+  "type": "commonjs",
+  "dependencies": {
+    "@x402/core": "^0.4.2",
+    "@x402/evm": "^0.4.2",
+    "viem": "^2.0.0"
+  }
+}
