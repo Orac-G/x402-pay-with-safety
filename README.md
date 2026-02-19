@@ -108,6 +108,7 @@ The Safety Layer uses 27 patterns to detect:
 - Authorization bypass attempts
 
 See [orac-safety.orac.workers.dev](https://orac-safety.orac.workers.dev) for full documentation.
+Repo: [github.com/Orac-G/safety-api](https://github.com/Orac-G/safety-api)
 
 ## Exit Codes
 
