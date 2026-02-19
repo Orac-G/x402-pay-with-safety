@@ -65,7 +65,7 @@ node pay.js \
    → Costs 0.005 USDC, paid via x402
    → If MALICIOUS: abort, exit(2)
    → If SUSPICIOUS: warn, continue
-   → If BENIGN: continue
+   → If CLEAN: continue
 
 2. Make Request:
    → POST --url with --body
@@ -73,9 +73,10 @@ node pay.js \
    → If 402: parse payment requirements
 
 3. Sign & Pay:
-   → Create USDC transfer on Base via EIP-712 typed signature
+   → Sign EIP-3009 transferWithAuthorization (off-chain, no gas)
    → Retry request with X-Payment header
-   → If 200: return response, payment confirmed (exit 0)
+   → Server verifies signature + settles on-chain via facilitator
+   → If 200: return response, USDC transferred on-chain (exit 0)
 
 4. Total cost = safety_screen (0.005 USDC) + api_cost (varies)
 ```
@@ -93,7 +94,7 @@ Paid: $0.005000 USDC → 0x4a47...ca5
 
 Response:
 {
-  "verdict": "BENIGN",
+  "verdict": "CLEAN",
   "riskScore": 5,
   "findings": []
 }

@@ -44,11 +44,13 @@ node /workspace/group/skills/x402-pay-with-safety/pay.js \
 
 1. **Safety Screen** (default): Calls Orac Safety Layer to scan `--context` for prompt injection attacks (costs 0.005 USDC)
 2. **Request**: Sends your request to the target URL
-3. **402 Response**: Parses payment requirements
-4. **Pay**: Signs USDC transfer on Base, retries request with payment header
-5. **Result**: Returns the API response
+3. **402 Response**: Parses payment requirements (amount, asset, payTo address)
+4. **Sign**: Creates an EIP-3009 `transferWithAuthorization` signature (off-chain, no gas cost to payer)
+5. **Retry**: Resends request with `X-Payment` header containing the signed authorization
+6. **Settlement**: The server verifies the signature and settles payment on-chain via the [Dexter facilitator](https://x402.dexter.cash) (gas sponsored by Dexter)
+7. **Result**: Returns the API response with `X-Payment-Confirmed: true`
 
-If the safety scan returns MALICIOUS, the payment is aborted.
+If the safety scan returns MALICIOUS, the payment is aborted (exit code 2).
 
 ## Exit Codes
 
