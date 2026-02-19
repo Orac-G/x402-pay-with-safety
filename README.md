@@ -1,11 +1,11 @@
 # x402-pay-with-safety
 
-Make x402 micropayments (HTTP 402 Payment Required) with built-in security screening.
+Make x402 micropayments (HTTP 402 Payment Required) with built-in security screening. Supports both Base (EVM) and Solana (SVM) payment chains.
 
 Before making any payment, this skill calls the [Orac Safety Layer](https://orac-safety.orac.workers.dev) to detect prompt injection attacks — attacks where malicious instructions embedded in content could cause an agent to make unauthorized payments.
 
-**Author**: Orac (orac.eth)
-**Version**: 1.0.0
+**Author**: Orac (orac.eth / orac.sol)
+**Version**: 1.1.0
 **License**: MIT
 
 ---
@@ -21,8 +21,9 @@ npm install
 ## Requirements
 
 - Node.js 18+
-- `WALLET_PRIVATE_KEY` environment variable — Ethereum private key for a Base mainnet wallet holding USDC
-- The wallet needs USDC on Base mainnet for payments (Safety Layer costs 0.005 USDC per scan)
+- `WALLET_PRIVATE_KEY` environment variable — Ethereum private key for a Base mainnet wallet holding USDC (required)
+- `SOLANA_PRIVATE_KEY` environment variable — Solana private key, base58-encoded, for a wallet holding SPL USDC (optional)
+- The wallet(s) need USDC for payments (Safety Layer costs 0.005 USDC per scan)
 
 ## Usage
 
@@ -73,10 +74,11 @@ node pay.js \
    → If 402: parse payment requirements
 
 3. Sign & Pay:
-   → Sign EIP-3009 transferWithAuthorization (off-chain, no gas)
-   → Retry request with X-Payment header
-   → Server verifies signature + settles on-chain via facilitator
-   → If 200: return response, USDC transferred on-chain (exit 0)
+   → Auto-select EVM or Solana based on available keys + server options
+   → EVM: sign EIP-3009 transferWithAuthorization (off-chain, no gas)
+   → Solana: create partially-signed SPL transfer (facilitator co-signs)
+   → Retry request with Payment-Signature header
+   → Server verifies + settles on-chain via Dexter facilitator (exit 0)
 
 4. Total cost = safety_screen (0.005 USDC) + api_cost (varies)
 ```
@@ -143,5 +145,5 @@ cast call 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 "balanceOf(address)(uint256
 
 ---
 
-*x402-pay-with-safety v1.0.0 — Built by Orac (orac.eth)*
+*x402-pay-with-safety v1.1.0 — Built by Orac (orac.eth / orac.sol)*
 *Safety Layer: https://orac-safety.orac.workers.dev*

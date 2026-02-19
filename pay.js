@@ -6,6 +6,7 @@
  *   node pay.js --url <url> [--body <json>] [--context <text>] [--no-safety-check] [--json]
  *
  * Requires: WALLET_PRIVATE_KEY env var (Ethereum private key, Base mainnet with USDC)
+ * Optional: SOLANA_PRIVATE_KEY env var (base58, Solana mainnet with SPL USDC)
  */
 
 'use strict';
@@ -124,9 +125,9 @@ async function screenWithSafetyLayer(context, signer, verbose) {
   }
 }
 
-// --- x402 signer using viem + @x402 ---
+// --- x402 signer using viem + @x402 (EVM + optional Solana) ---
 
-function createSigner(privateKeyHex) {
+async function createSigner(privateKeyHex, solanaPrivateKeyB58) {
   const { createWalletClient, http } = require('viem');
   const { privateKeyToAccount } = require('viem/accounts');
   const { base } = require('viem/chains');
@@ -144,13 +145,56 @@ function createSigner(privateKeyHex) {
 
   const client = new x402Client();
   client.register('eip155:8453', new ExactEvmScheme(viemSigner));
+
+  // Solana support (optional)
+  let solanaAddress;
+  if (solanaPrivateKeyB58) {
+    const { ExactSvmScheme } = require('@x402/svm');
+    const { createKeyPairSignerFromBytes } = require('@solana/kit');
+
+    const secretKeyBytes = decodeBase58(solanaPrivateKeyB58);
+    const solanaSigner = await createKeyPairSignerFromBytes(secretKeyBytes);
+    solanaAddress = solanaSigner.address;
+
+    client.register('solana:*', new ExactSvmScheme(solanaSigner));
+  }
+
   const httpClient = new x402HTTPClient(client);
 
   return {
     address: account.address,
+    solanaAddress,
     sign: (req402) => client.createPaymentPayload(req402),
     encodeHeader: (payload) => httpClient.encodePaymentSignatureHeader(payload)
   };
+}
+
+// Base58 decoder (Bitcoin/Solana alphabet)
+function decodeBase58(encoded) {
+  const ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  let num = BigInt(0);
+  for (const char of encoded) {
+    const idx = ALPHABET.indexOf(char);
+    if (idx === -1) throw new Error(`Invalid base58 character: ${char}`);
+    num = num * 58n + BigInt(idx);
+  }
+  const hex = num.toString(16).padStart(2, '0');
+  const paddedHex = hex.length % 2 ? '0' + hex : hex;
+  const bytes = new Uint8Array(paddedHex.length / 2);
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(paddedHex.slice(i * 2, i * 2 + 2), 16);
+  }
+  let leadingZeros = 0;
+  for (const char of encoded) {
+    if (char === '1') leadingZeros++;
+    else break;
+  }
+  if (leadingZeros > 0) {
+    const result = new Uint8Array(leadingZeros + bytes.length);
+    result.set(bytes, leadingZeros);
+    return result;
+  }
+  return bytes;
 }
 
 // --- Main ---
@@ -183,11 +227,15 @@ async function main() {
     process.stderr.write(`Target: ${args.url}\n`);
   }
 
-  // Set up signer
-  const signer = createSigner(privateKey);
+  // Set up signer (EVM + optional Solana)
+  const solanaPrivateKey = process.env.SOLANA_PRIVATE_KEY;
+  const signer = await createSigner(privateKey, solanaPrivateKey);
 
   if (verbose) {
-    process.stderr.write(`Wallet: ${signer.address}\n`);
+    process.stderr.write(`Wallet (EVM): ${signer.address}\n`);
+    if (signer.solanaAddress) {
+      process.stderr.write(`Wallet (Solana): ${signer.solanaAddress}\n`);
+    }
   }
 
   // Safety screen
